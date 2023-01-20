@@ -1,4 +1,4 @@
-package com.example.cabifymarketplace
+package com.android.cabifymarketplace
 
 import org.junit.Test
 

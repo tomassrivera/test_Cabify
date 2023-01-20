@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Cabify Marketplace</string>
+    <string name="products_screen">Products</string>
+    <string name="back_button">Back</string>
 </resources>

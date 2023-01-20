@@ -1,4 +1,4 @@
-package com.example.cabifymarketplace.ui.theme
+package com.android.cabifymarketplace.ui.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Shapes
