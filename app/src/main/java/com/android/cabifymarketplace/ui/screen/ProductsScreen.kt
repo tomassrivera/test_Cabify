@@ -7,14 +7,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,7 +29,8 @@ import java.math.BigDecimal
 @Composable
 fun ProductsScreen(
     viewModel: ProductViewModel = hiltViewModel(),
-    onNextButtonClicked: (Int) -> Unit,
+    onNextButtonClicked: () -> Unit,
+    onUpdateCartClicked: (Int, Product) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -44,17 +43,28 @@ fun ProductsScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(text = stringResource(R.string.app_name), style = MaterialTheme.typography.h4)
         Spacer(modifier = Modifier.height(8.dp))
         if (productList is Resource.Success) {
-            ProductList((productList as Resource.Success<Products>).data.products)
+            ProductList((productList as Resource.Success<Products>).data.products, onUpdateCartClicked)
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        FloatingActionButton(
+            modifier = Modifier
+                .padding(all = 16.dp)
+                .align(alignment = Alignment.BottomEnd),
+            onClick = onNextButtonClicked) {
+            Icon(painter = painterResource(id = R.drawable.ic_cart), contentDescription = "Add")
         }
     }
 }
 
 @Composable
-private fun ProductList(productList: List<Product>) {
+private fun ProductList(
+    productList: List<Product>,
+    onUpdateCartClicked: (Int, Product) -> Unit
+) {
         LazyColumn() {
             items(items = productList) { item ->
                 Card(
@@ -62,15 +72,18 @@ private fun ProductList(productList: List<Product>) {
                     modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
                     shape = RoundedCornerShape(10.dp)
                 ) {
-                    CardContent(item)
+                    CardContent(item, onUpdateCartClicked)
                 }
             }
     }
 }
 
 @Composable
-private fun CardContent(product: Product) {
-    var itemsQuantity by remember { mutableStateOf(0) }
+private fun CardContent(
+    product: Product,
+    onUpdateCartClicked: (Int, Product) -> Unit
+) {
+    var itemsQuantity by rememberSaveable { mutableStateOf(0) }
     Column(
         modifier = Modifier
             .padding(vertical = 2.dp, horizontal = 8.dp),
@@ -91,12 +104,11 @@ private fun CardContent(product: Product) {
                 horizontalAlignment = Alignment.End
             ) {
                 Text(
-                    text = currencyFormat(product.price), style = MaterialTheme.typography.h4.copy(
+                    text = currencyFormat(product.price), style = MaterialTheme.typography.h5.copy(
                         fontWeight = FontWeight.ExtraBold
                     )
                 )
             }
-            // Image(painter = , contentDescription = )
         }
         Row(
             modifier = Modifier
@@ -106,12 +118,18 @@ private fun CardContent(product: Product) {
             horizontalArrangement = Arrangement.End
         ) {
             if (itemsQuantity > 0) {
-                IconButton(onClick = { itemsQuantity-- }, Modifier.size(30.dp)) {
+                IconButton(onClick = {
+                    itemsQuantity--
+                    onUpdateCartClicked(-1, product)
+                                     }, Modifier.size(30.dp)) {
                     Icon(painter = painterResource(id = R.drawable.ic_remove), contentDescription = "",  Modifier.padding(end = 10.dp))
                 }
                 Text(text = itemsQuantity.toString(), fontSize = 22.sp)
             }
-            IconButton(onClick = { itemsQuantity++ }, Modifier.size(30.dp)) {
+            IconButton(onClick = {
+                itemsQuantity++
+                onUpdateCartClicked(1, product)
+                                 }, Modifier.size(30.dp)) {
                 Icon(imageVector = Icons.Default.AddCircle, contentDescription = "", Modifier.padding(start = 10.dp))
             }
         }
@@ -125,5 +143,6 @@ fun StartOrderPreview() {
         listOf(
             Product("TSHIRT", "Cabify T-Shirt", BigDecimal(23.45)),
             Product("MUG", "Cabify Coffee Mug", BigDecimal(7.5))
-        ))
+        )
+    ) { i: Int, s: Product -> }
 }

@@ -9,11 +9,15 @@ import com.android.cabifymarketplace.model.OrderInfo
 import com.android.cabifymarketplace.model.Product
 import com.android.cabifymarketplace.model.Products
 import com.android.cabifymarketplace.ui.common.Resource
+import com.android.cabifymarketplace.ui.utils.DiscountUtil.discountsCalculate
+import com.android.cabifymarketplace.ui.utils.extensionfunction.changeQuantity
+
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import javax.inject.Inject
@@ -33,9 +37,14 @@ class ProductViewModel @Inject constructor(
         return _productList
     }
 
+    val order: OrderInfo = OrderInfo(mutableListOf())
 
-    private val _uiState = MutableStateFlow(OrderInfo())
-    val orderStatus: StateFlow<OrderInfo> = _uiState.asStateFlow()
+    fun changeItemQuantity(product: Product, quantity: Int) {
+       order.productsCodeSelected.changeQuantity(product, quantity)
 
+    }
 
+    fun getDiscountsSummary(): List<Pair<String, BigDecimal>> {
+        return discountsCalculate(repository.getDiscounts(), order.productsCodeSelected)
+    }
 }
