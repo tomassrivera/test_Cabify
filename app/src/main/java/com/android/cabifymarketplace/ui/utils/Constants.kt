@@ -2,6 +2,9 @@ package com.android.cabifymarketplace.ui.utils
 
 interface Constants {
     companion object {
+
+        const val DATABASE_NAME = "cabify_marketplace_data"
+
         // DISCOUNT RULES
         const val DISCOUNT_RULE_MORE_THAN = "MORE THAN"
         const val DISCOUNT_RULE_QUANTITY_X_QUANTITY = "QUANTITY X QUANTITY"

@@ -1,7 +1,7 @@
 package com.android.cabifymarketplace.ui.utils
 
 import com.android.cabifymarketplace.model.Discount
-import com.android.cabifymarketplace.model.ProductOrder
+import com.android.cabifymarketplace.model.db.ProductOrder
 import com.android.cabifymarketplace.ui.utils.Constants.Companion.DISCOUNT_RULE_MORE_THAN
 import com.android.cabifymarketplace.ui.utils.Constants.Companion.DISCOUNT_RULE_QUANTITY_X_QUANTITY
 import com.android.cabifymarketplace.ui.utils.Constants.Companion.DISCOUNT_TYPE_LESS_PRICE
@@ -13,10 +13,10 @@ object DiscountUtil {
 
     fun discountsCalculate(
         discountList: List<Discount>,
-        products: List<ProductOrder>
+        products: List<ProductOrder>?
     ): List<Pair<String, BigDecimal>> {
         val discountResume = mutableListOf<Pair<String, BigDecimal>>()
-        products.forEach { product ->
+        products?.forEach { product ->
             discountList.sortedBy { x -> x.priority }.forEach { discount ->
                 if (discount.productsCode.contains(product.code) && ruleCheck(product.quantity, discount.rule)) {
                     discountPriceCalculator(product, discount)?.let {
@@ -64,7 +64,7 @@ object DiscountUtil {
                 discount.value.multiply(product.quantity.toBigDecimal())
             }
             DISCOUNT_TYPE_PERCENTAGE -> {
-                (product.price.multiply(product.quantity.toBigDecimal())) * discount.value
+                (product.price * product.quantity).toBigDecimal().multiply(discount.value)
             }
             else -> {
                 BigDecimal.ZERO

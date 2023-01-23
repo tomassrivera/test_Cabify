@@ -1,10 +1,12 @@
 package com.android.cabifymarketplace.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 
 private val DarkColorPalette = darkColors(
     primary = Teal200,
@@ -26,6 +28,10 @@ private val LightColorPalette = lightColors(
     onSurface = Color.Black,
     */
 )
+
+@get:Composable
+val Colors.myExtraColor: Color
+    get() = if (isLight) Color.Red else Color.Green
 
 @Composable
 fun CabifyMarketplaceTheme(

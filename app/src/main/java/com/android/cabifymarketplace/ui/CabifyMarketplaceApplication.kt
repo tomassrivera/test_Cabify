@@ -1,4 +1,4 @@
-package com.android.cabifymarketplace
+package com.android.cabifymarketplace.ui
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp

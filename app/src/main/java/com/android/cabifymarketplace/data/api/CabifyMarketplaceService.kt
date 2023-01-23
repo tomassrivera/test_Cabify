@@ -1,4 +1,4 @@
-package com.android.cabifymarketplace.data
+package com.android.cabifymarketplace.data.api
 
 import com.android.cabifymarketplace.model.Product
 import com.android.cabifymarketplace.model.Products

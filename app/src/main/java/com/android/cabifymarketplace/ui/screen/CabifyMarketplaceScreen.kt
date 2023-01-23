@@ -5,13 +5,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Call
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -46,7 +47,7 @@ fun CabifyMarketplaceAppBar(
                 IconButton(onClick = navigateUp) {
                     Icon(
                         imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back_button)
+                        contentDescription = stringResource(R.string.back_button_content_description)
                     )
                 }
             }
@@ -76,7 +77,7 @@ fun CabifyMarketplaceAppBar(
 @Composable
 fun CabifyMarketplaceApp(
     modifier: Modifier = Modifier,
-    viewModel: ProductViewModel = viewModel(),
+    viewModel: ProductViewModel = hiltViewModel(),
     navController: NavHostController = rememberNavController()
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -85,7 +86,7 @@ fun CabifyMarketplaceApp(
         backStackEntry?.destination?.route ?: CabifyMarketplaceScreen.Products.name
     )
 
-    var cartQuantity by rememberSaveable { mutableStateOf(0) }
+    val cartProducts by viewModel.order.observeAsState()
 
     Scaffold(
         topBar = {
@@ -94,7 +95,7 @@ fun CabifyMarketplaceApp(
                 canNavigateBack = navController.previousBackStackEntry != null,
                 navigateUp = { navController.navigateUp() },
                 navigateCart = { navController.navigate(CabifyMarketplaceScreen.ReviewCart.name)},
-                cartQuantity = cartQuantity
+                cartQuantity = cartProducts?.sumOf { it.quantity } ?: 0
             )
         }
     ) { innerPadding ->
@@ -107,14 +108,23 @@ fun CabifyMarketplaceApp(
                 ProductsScreen(
                     onNextButtonClicked = { navController.navigate(CabifyMarketplaceScreen.ReviewCart.name) },
                     onUpdateCartClicked = { quantity: Int, product: Product ->
-                        cartQuantity += quantity
                         viewModel.changeItemQuantity(product, quantity)
                     }
                 )
             }
             composable(route = CabifyMarketplaceScreen.ReviewCart.name) {
-                ReviewCartScreen(viewModel = viewModel)
+                ReviewCartScreen(viewModel = viewModel, onCancelButtonClicked = {
+                    cancelOrderAndNavigateToStart(viewModel, navController)
+                },)
             }
         }
     }
+}
+
+private fun cancelOrderAndNavigateToStart(
+    viewModel: ProductViewModel,
+    navController: NavHostController
+) {
+    viewModel.resetOrder()
+    navController.popBackStack(CabifyMarketplaceScreen.Products.name, inclusive = false)
 }

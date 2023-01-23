@@ -5,19 +5,15 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.cabifymarketplace.data.repository.CabifyMarketplaceRepository
-import com.android.cabifymarketplace.model.OrderInfo
 import com.android.cabifymarketplace.model.Product
 import com.android.cabifymarketplace.model.Products
+import com.android.cabifymarketplace.model.db.ProductOrder
 import com.android.cabifymarketplace.ui.common.Resource
 import com.android.cabifymarketplace.ui.utils.DiscountUtil.discountsCalculate
-import com.android.cabifymarketplace.ui.utils.extensionfunction.changeQuantity
 
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import javax.inject.Inject
@@ -37,14 +33,52 @@ class ProductViewModel @Inject constructor(
         return _productList
     }
 
-    val order: OrderInfo = OrderInfo(mutableListOf())
+    val order: LiveData<List<ProductOrder>> by lazy {
+        repository.getProductsCart()
+    }
 
     fun changeItemQuantity(product: Product, quantity: Int) {
-       order.productsCodeSelected.changeQuantity(product, quantity)
+        if (quantity > 0) {
+            addProduct(product)
+        } else {
+            removeProduct(product)
+        }
+    }
 
+
+    fun addProduct(product: Product) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (repository.checkProductExists(product.code)) {
+                repository.updateQuantity(product.code, 1)
+            } else {
+                repository.insertProduct(product.convertToProductOrder())
+            }
+        }
+    }
+
+    fun removeProduct(product: Product) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (repository.getQuantityByProductCode(product.code) > 1) {
+                repository.updateQuantity(product.code, -1)
+            } else {
+                repository.deleteProduct(product.code)
+            }
+        }
     }
 
     fun getDiscountsSummary(): List<Pair<String, BigDecimal>> {
-        return discountsCalculate(repository.getDiscounts(), order.productsCodeSelected)
+        return discountsCalculate(repository.getDiscounts(), order.value)
+    }
+
+    fun getTotalPriceToPay(): BigDecimal {
+        return order.value?.sumOf { it.price * it.quantity }?.toBigDecimal()?. let { sumTotalPrice ->
+            sumTotalPrice.subtract(getDiscountsSummary().sumOf { x -> x.second})
+        } ?: BigDecimal(0)
+    }
+
+    fun resetOrder() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteProducts()
+        }
     }
 }

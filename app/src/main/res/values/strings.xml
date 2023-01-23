@@ -2,5 +2,8 @@
     <string name="app_name">Cabify Marketplace</string>
     <string name="products_screen">Products</string>
     <string name="review_cart_screen">Review Cart</string>
-    <string name="back_button">Back</string>
+    <string name="total_row_review_cart">Total:</string>
+    <string name="back_button_content_description">Back</string>
+    <string name="pay_button">Pagar</string>
+    <string name="cancel_button">Cancelar</string>
 </resources>
