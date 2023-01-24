@@ -3,7 +3,10 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
+    id 'io.gitlab.arturbosch.detekt'
 }
+
+apply from: '../gradle/ktlint.gradle'
 
 android {
     namespace 'com.android.cabifymarketplace'
@@ -64,6 +67,7 @@ dependencies {
     implementation "androidx.compose.runtime:runtime-livedata:$compose_ui_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "androidx.navigation:navigation-compose:2.5.3"
 
     // Retrofit

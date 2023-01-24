@@ -1,12 +1,12 @@
 package com.android.cabifymarketplace.data.repository
 
 import androidx.lifecycle.LiveData
-import com.android.cabifymarketplace.data.DataSource.discounts
-import com.android.cabifymarketplace.data.api.CabifyMarketplaceService
-import com.android.cabifymarketplace.data.db.ProductDAO
-import com.android.cabifymarketplace.model.Discount
-import com.android.cabifymarketplace.model.Products
-import com.android.cabifymarketplace.model.db.ProductOrder
+import com.android.cabifymarketplace.data.datasource.api.CabifyMarketplaceService
+import com.android.cabifymarketplace.data.datasource.db.ProductDAO
+import com.android.cabifymarketplace.domain.model.Discount
+import com.android.cabifymarketplace.domain.model.Products
+import com.android.cabifymarketplace.domain.model.db.ProductOrder
+import com.android.cabifymarketplace.domain.repository.CabifyMarketplaceRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -14,13 +14,17 @@ import javax.inject.Singleton
 class CabifyMarketplaceRepositoryImp @Inject constructor(
     private val networkDataSource: CabifyMarketplaceService,
     private val localDataSource: ProductDAO
-): CabifyMarketplaceRepository {
+) : CabifyMarketplaceRepository {
     override suspend fun getProducts(): Products {
         return networkDataSource.getProducts()
     }
 
-    override fun getDiscounts(): List<Discount> {
-        return discounts
+    override suspend fun getDiscounts(): List<Discount> {
+        return networkDataSource.getDiscounts()
+    }
+
+    override suspend fun getOrder(): List<ProductOrder> {
+        return localDataSource.getOrder()
     }
 
     override fun getProductsCart(): LiveData<List<ProductOrder>> {
