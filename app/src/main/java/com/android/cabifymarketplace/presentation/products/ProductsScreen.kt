@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -28,8 +27,9 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,7 +37,13 @@ import com.android.cabifymarketplace.R
 import com.android.cabifymarketplace.core.Resource
 import com.android.cabifymarketplace.domain.model.Product
 import com.android.cabifymarketplace.domain.model.Products
+import com.android.cabifymarketplace.presentation.ShowError
+import com.android.cabifymarketplace.presentation.ShowLoading
+import com.android.cabifymarketplace.presentation.ui.theme.CabifyMarketplaceTheme
 import com.android.cabifymarketplace.presentation.utils.Formats.currencyFormat
+import com.android.cabifymarketplace.presentation.utils.PreviewUtil
+import com.android.cabifymarketplace.presentation.utils.extensionfunction.existInCart
+import com.android.cabifymarketplace.presentation.utils.extensionfunction.getQuantityByProductCode
 
 @Composable
 fun ProductsScreen(
@@ -45,10 +51,13 @@ fun ProductsScreen(
     onNextButtonClicked: () -> Unit,
     onUpdateCartClicked: (Int, Product) -> Unit
 ) {
-
     val productList by viewModel.productList
 
-    Box(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+    ) {
         when (productList) {
             is Resource.Success<Products> -> {
                 productList.data?.products?.let { productList ->
@@ -61,24 +70,23 @@ fun ProductsScreen(
                             .align(alignment = Alignment.BottomEnd),
                         onClick = onNextButtonClicked
                     ) {
-                        Icon(painter = painterResource(id = R.drawable.ic_cart), contentDescription = "Add")
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_cart),
+                            contentDescription = stringResource(
+                                R.string.cart_button_content_description
+                            )
+                        )
                     }
                 }
             }
             is Resource.Loading -> {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                ShowLoading(Modifier.align(Alignment.Center))
             }
 
             is Resource.Error -> {
-                Text(
-                    text = productList.message ?: "",
-                    color = MaterialTheme.colors.error,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                        .align(Alignment.Center)
-                )
+                ShowError(Modifier.align(Alignment.Center), productList.message) {
+                    viewModel.getProducts()
+                }
             }
         }
     }
@@ -90,7 +98,7 @@ private fun ProductList(
     onUpdateCartClicked: (Int, Product) -> Unit,
     viewModel: ProductViewModel
 ) {
-    LazyColumn() {
+    LazyColumn {
         items(items = productList) { item ->
             Card(
                 backgroundColor = MaterialTheme.colors.primary,
@@ -109,13 +117,7 @@ private fun CardContent(
     onUpdateCartClicked: (Int, Product) -> Unit,
     viewModel: ProductViewModel
 ) {
-
-    val cartProducts by viewModel.order.observeAsState()
-
-    Column(
-        modifier = Modifier
-            .padding(vertical = 2.dp, horizontal = 8.dp),
-    ) {
+    Column(modifier = Modifier.padding(vertical = 2.dp, horizontal = 8.dp)) {
         Row(
             modifier = Modifier
                 .height(IntrinsicSize.Max)
@@ -139,46 +141,64 @@ private fun CardContent(
                 )
             }
         }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(30.dp),
+        ButtonsCardContent(product, onUpdateCartClicked, viewModel)
+    }
+}
 
-            horizontalArrangement = Arrangement.End
-        ) {
-            if (cartProducts?.find { it.code == product.code } != null) {
-                IconButton(
-                    onClick = {
-                        onUpdateCartClicked(-1, product)
-                    },
-                    Modifier.size(30.dp)
-                ) {
-                    Icon(painter = painterResource(id = R.drawable.ic_remove), contentDescription = "", Modifier.padding(end = 10.dp))
-                }
-                Text(text = cartProducts!!.find { it.code == product.code }!!.quantity.toString(), fontSize = 22.sp)
-            }
+@Composable
+private fun ButtonsCardContent(
+    product: Product,
+    onUpdateCartClicked: (Int, Product) -> Unit,
+    viewModel: ProductViewModel
+) {
+    val cartProducts by viewModel.order.observeAsState()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(30.dp),
+        horizontalArrangement = Arrangement.End
+    ) {
+        if (cartProducts.existInCart(product.code)) {
             IconButton(
                 onClick = {
-                    onUpdateCartClicked(1, product)
+                    onUpdateCartClicked(-1, product)
                 },
                 Modifier.size(30.dp)
             ) {
-                Icon(imageVector = Icons.Default.AddCircle, contentDescription = "", Modifier.padding(start = 10.dp))
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_remove),
+                    contentDescription = stringResource(R.string.delete_icon_content_description),
+                    Modifier.padding(end = 10.dp)
+                )
             }
+            Text(
+                text = cartProducts.getQuantityByProductCode(product.code),
+                fontSize = 22.sp
+            )
+        }
+        IconButton(
+            onClick = {
+                onUpdateCartClicked(1, product)
+            },
+            Modifier.size(30.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.AddCircle,
+                contentDescription = stringResource(R.string.add_icon_content_description),
+                Modifier.padding(start = 10.dp)
+            )
         }
     }
 }
 
-/*@Preview
+@Preview
 @Composable
-fun StartOrderPreview() {
-    ProductList(
-        listOf(
-            Product("TSHIRT", "Cabify T-Shirt", BigDecimal(23.45)),
-            Product("MUG", "Cabify Coffee Mug", BigDecimal(7.5))
-        ),
-        { i: Int, s: Product -> },
-        cartProducts,
-        viewModel
-    )
-}*/
+fun ProductListPreview() {
+    CabifyMarketplaceTheme {
+        ProductsScreen(
+            PreviewUtil.getMockProductsViewModel(),
+            {},
+            { i: Int, product: Product -> }
+        )
+    }
+}

@@ -8,12 +8,12 @@ import com.android.cabifymarketplace.data.datasource.db.DbDataSource
 import com.android.cabifymarketplace.domain.repository.CabifyMarketplaceRepository
 import com.android.cabifymarketplace.domain.usecase.CheckProductExistUseCase
 import com.android.cabifymarketplace.domain.usecase.DBUseCases
+import com.android.cabifymarketplace.domain.usecase.DeleteCartUseCase
 import com.android.cabifymarketplace.domain.usecase.DeleteProductCartUseCase
-import com.android.cabifymarketplace.domain.usecase.DeleteProductsCartUseCase
 import com.android.cabifymarketplace.domain.usecase.GetCartUseCase
 import com.android.cabifymarketplace.domain.usecase.GetDiscountsUseCase
+import com.android.cabifymarketplace.domain.usecase.GetProductQuantityUseCase
 import com.android.cabifymarketplace.domain.usecase.GetProductsUseCase
-import com.android.cabifymarketplace.domain.usecase.GetQuantityProductUseCase
 import com.android.cabifymarketplace.domain.usecase.InsertProductCartUseCase
 import com.android.cabifymarketplace.domain.usecase.UpdateProductQuantityUseCase
 import dagger.Module
@@ -57,7 +57,7 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun provideMoviesDAO(db: DbDataSource) = db.productDAO()
+    fun provideDAO(db: DbDataSource) = db.productDAO()
 
     @Singleton
     @Provides
@@ -71,10 +71,10 @@ class AppModule {
             checkProductExistUseCase = CheckProductExistUseCase(repository),
             deleteProductCartUseCase = DeleteProductCartUseCase(repository),
             getCartUseCase = GetCartUseCase(repository),
-            getQuantityProductUseCase = GetQuantityProductUseCase(repository),
+            getProductQuantityUseCase = GetProductQuantityUseCase(repository),
             insertProductCartUseCase = InsertProductCartUseCase(repository),
             updateProductQuantityUseCase = UpdateProductQuantityUseCase(repository),
-            deleteProductsCartUseCase = DeleteProductsCartUseCase(repository)
+            deleteCartUseCase = DeleteCartUseCase(repository)
         )
     }
 

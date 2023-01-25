@@ -39,12 +39,8 @@ class CabifyMarketplaceRepositoryImp @Inject constructor(
         localDataSource.deleteProduct(productCode)
     }
 
-    override suspend fun checkProductExists(code: String): Boolean {
-        return localDataSource.checkProductExists(code) > 0
-    }
-
     override suspend fun getQuantityByProductCode(code: String): Int {
-        return localDataSource.getQuantityByProductCode(code)
+        return localDataSource.getQuantityByProductCode(code) ?: 0
     }
 
     override suspend fun updateQuantity(code: String, quantity: Int) {

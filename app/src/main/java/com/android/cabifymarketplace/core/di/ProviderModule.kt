@@ -13,5 +13,7 @@ import javax.inject.Singleton
 abstract class ProviderModule {
     @Binds
     @Singleton
-    abstract fun bindCabifyMarketplaceRepository(mainRepository: CabifyMarketplaceRepositoryImp): CabifyMarketplaceRepository
+    abstract fun bindCabifyMarketplaceRepository(
+        mainRepository: CabifyMarketplaceRepositoryImp
+    ): CabifyMarketplaceRepository
 }

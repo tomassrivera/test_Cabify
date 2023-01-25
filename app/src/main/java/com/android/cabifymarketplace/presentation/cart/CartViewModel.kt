@@ -4,6 +4,9 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.android.cabifymarketplace.core.Constants.DESCRIPTION_CART_SUMMARY_TYPE_DISCOUNT
+import com.android.cabifymarketplace.core.Constants.DESCRIPTION_CART_SUMMARY_TYPE_NORMAL
+import com.android.cabifymarketplace.core.Constants.DESCRIPTION_CART_SUMMARY_TYPE_TOTAL
 import com.android.cabifymarketplace.core.Resource
 import com.android.cabifymarketplace.domain.model.Discount
 import com.android.cabifymarketplace.domain.usecase.DBUseCases
@@ -24,7 +27,8 @@ class CartViewModel @Inject constructor(
     private val getDiscountsUseCase: GetDiscountsUseCase
 ) : ViewModel() {
 
-    private val _discounts = mutableStateOf<Resource<List<DescriptionCartSummary>>>(Resource.Loading())
+    private val _discounts =
+        mutableStateOf<Resource<List<DescriptionCartSummary>>>(Resource.Loading())
     val discounts: State<Resource<List<DescriptionCartSummary>>> = _discounts
 
     init {
@@ -37,18 +41,39 @@ class CartViewModel @Inject constructor(
             var totalPrice = BigDecimal(0)
             val order = dbUseCases.getCartUseCase()
             order.forEach {
-                listDescriptionCartSummary.add(DescriptionCartSummary(it.name + " (" + it.quantity + ")", Formats.currencyFormat(it.getFinalPrice()), "normal"))
+                listDescriptionCartSummary.add(
+                    DescriptionCartSummary(
+                        it.name,
+                        Formats.currencyFormat(
+                            it.getFinalPrice()
+                        ),
+                        DESCRIPTION_CART_SUMMARY_TYPE_NORMAL,
+                        it.quantity
+                    )
+                )
                 totalPrice += it.getFinalPrice()
             }
             getDiscountsUseCase.invoke().onEach {
                 when (it) {
                     is Resource.Success<List<Discount>> -> {
                         discountsCalculate(it.data, order).forEach { discount ->
-                            listDescriptionCartSummary.add(DescriptionCartSummary(discount.first, Formats.currencyFormat(discount.second), "positive"))
+                            listDescriptionCartSummary.add(
+                                DescriptionCartSummary(
+                                    discount.first,
+                                    Formats.currencyFormat(discount.second),
+                                    DESCRIPTION_CART_SUMMARY_TYPE_DISCOUNT
+                                )
+                            )
                             totalPrice -= discount.second
                         }
                         if (listDescriptionCartSummary.isNotEmpty()) {
-                            listDescriptionCartSummary.add(DescriptionCartSummary("Total: ", Formats.currencyFormat(totalPrice), "total"))
+                            listDescriptionCartSummary.add(
+                                DescriptionCartSummary(
+                                    "",
+                                    Formats.currencyFormat(totalPrice),
+                                    DESCRIPTION_CART_SUMMARY_TYPE_TOTAL
+                                )
+                            )
                         }
                         _discounts.value = Resource.Success(listDescriptionCartSummary.toList())
                     }
@@ -56,16 +81,16 @@ class CartViewModel @Inject constructor(
                         _discounts.value = Resource.Loading()
                     }
                     is Resource.Error -> {
-                        _discounts.value = Resource.Error(it.message ?: "")
+                        _discounts.value = Resource.Error(it.message)
                     }
                 }
-            }.launchIn(this)
+            }.launchIn(viewModelScope)
         }
     }
 
     fun resetOrder() {
         viewModelScope.launch(Dispatchers.IO) {
-            dbUseCases.deleteProductsCartUseCase()
+            dbUseCases.deleteCartUseCase()
         }
     }
 }

@@ -36,7 +36,7 @@ class ProductViewModel @Inject constructor(
         dbUseCases.getCartUseCase.invokeLiveData()
     }
 
-    private fun getProducts() {
+    fun getProducts() {
         getProductsUseCase().onEach {
             _productList.value = it
         }.launchIn(viewModelScope)
@@ -62,7 +62,7 @@ class ProductViewModel @Inject constructor(
 
     private fun removeProduct(product: Product) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (dbUseCases.getQuantityProductUseCase(product.code) > 1) {
+            if (dbUseCases.getProductQuantityUseCase(product.code) > 1) {
                 dbUseCases.updateProductQuantityUseCase(product.code, -1)
             } else {
                 dbUseCases.deleteProductCartUseCase(product.code)

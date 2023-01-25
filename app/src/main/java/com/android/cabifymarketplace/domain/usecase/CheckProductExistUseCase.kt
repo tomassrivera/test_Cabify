@@ -7,6 +7,6 @@ class CheckProductExistUseCase @Inject constructor(
     private val repository: CabifyMarketplaceRepository
 ) {
     suspend operator fun invoke(code: String): Boolean {
-        return repository.checkProductExists(code)
+        return repository.getQuantityByProductCode(code) > 0
     }
 }

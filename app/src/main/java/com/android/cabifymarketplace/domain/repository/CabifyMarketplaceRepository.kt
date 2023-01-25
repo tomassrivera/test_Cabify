@@ -12,7 +12,6 @@ interface CabifyMarketplaceRepository {
     suspend fun getOrder(): List<ProductOrder>
     suspend fun insertProduct(product: ProductOrder)
     suspend fun deleteProduct(productCode: String)
-    suspend fun checkProductExists(code: String): Boolean
     suspend fun getQuantityByProductCode(code: String): Int
     suspend fun updateQuantity(code: String, quantity: Int)
     suspend fun deleteProducts()

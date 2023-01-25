@@ -7,15 +7,16 @@ plugins {
 }
 
 apply from: '../gradle/ktlint.gradle'
+apply from: '../gradle/detekt.gradle'
 
 android {
     namespace 'com.android.cabifymarketplace'
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.android.cabifymarketplace"
         minSdk 21
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -23,6 +24,9 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+
+        buildConfigField("String", "API_KEY", "\"6c19259bd32dd6aafa327fa557859c2f\"")
+        buildConfigField("String", "URL_DISCOUNTS", "\"https://mocki.io/v1/a10cac92-dff8-46db-b038-8dd945f58c9a\"")
     }
 
     buildTypes {

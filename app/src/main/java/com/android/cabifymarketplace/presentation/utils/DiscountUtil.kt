@@ -30,15 +30,15 @@ object DiscountUtil {
     }
 
     private fun ruleCheck(productQuantity: Int, rule: DiscountRule): Boolean {
-        when (rule.code) {
+        return when (rule.code) {
             DISCOUNT_RULE_MORE_THAN -> {
-                return productQuantity > rule.value
+                productQuantity > rule.value
             }
             DISCOUNT_RULE_QUANTITY_X_QUANTITY -> {
-                return productQuantity >= rule.value
+                productQuantity >= rule.value
             }
+            else -> false
         }
-        return false
     }
 
     private fun discountPriceCalculator(product: ProductOrder, discount: Discount): BigDecimal? {

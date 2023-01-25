@@ -17,7 +17,7 @@ interface ProductDAO {
     suspend fun checkProductExists(code: String): Int
 
     @Query("SELECT products.quantity FROM products WHERE products.code = :code")
-    suspend fun getQuantityByProductCode(code: String): Int
+    suspend fun getQuantityByProductCode(code: String): Int?
 
     @Query("UPDATE products SET quantity = quantity + :quantity  WHERE products.code = :code")
     suspend fun updateQuantity(code: String, quantity: Int)

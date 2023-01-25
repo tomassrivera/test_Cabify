@@ -3,7 +3,27 @@
     <string name="products_screen">Products</string>
     <string name="review_cart_screen">Review Cart</string>
     <string name="total_row_review_cart">Total:</string>
-    <string name="back_button_content_description">Back</string>
+
+
+
+    <string name="error_message">Ha ocurrido un error: %1$s, por favor intentá nuevamente.</string>
+    <string name="unexpected_message_error">Error inesperado, verificá la conexión a internet</string>
+    <string name="button_error_retry">Reintentar</string>
+
+    <string name="description_cart_summary_normal">%1$s (%2$s)</string>
+    <string name="description_cart_summary_total">Total: </string>
+
+    <string name="empty_cart_message">El carrito se encuentra vacío</string>
+
+    <!-- Text button description -->
     <string name="pay_button">Pagar</string>
     <string name="cancel_button">Cancelar</string>
+    <string name="add_item_cart_button">Agregar productos</string>
+
+    <!-- Content description -->
+    <string name="back_button_content_description">Back</string>
+    <string name="cart_button_content_description">Cart</string>
+    <string name="empty_cart_image_content_description">Empty cart</string>
+    <string name="add_icon_content_description">Agregar item</string>
+    <string name="delete_icon_content_description">Eliminar item</string>
 </resources>

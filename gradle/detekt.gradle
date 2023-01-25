@@ -1,0 +1,19 @@
+dependencies {
+    detektPlugins "io.gitlab.arturbosch.detekt:detekt-formatting:1.22.0"
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    config = files("$projectDir/config/detekt.yml")
+    baseline = file("$projectDir/config/baseline.xml")
+
+    reports {
+        html.enabled = true
+        xml.enabled = true
+        txt.enabled = true
+        sarif.enabled = true
+    }
+}
+
+tasks.detekt.jvmTarget = JavaVersion.VERSION_1_8

@@ -18,9 +18,9 @@ class GetDiscountsUseCase @Inject constructor(
             val response = repository.getDiscounts()
             emit(Resource.Success(response))
         } catch (e: HttpException) {
-            emit(Resource.Error(e.localizedMessage ?: "An unexpected error occurred"))
+            emit(Resource.Error(e.localizedMessage))
         } catch (e: IOException) {
-            emit(Resource.Error("Couldn't reach server. Check your internet connection."))
+            emit(Resource.Error(e.message))
         }
     }
 }
