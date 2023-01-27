@@ -1,0 +1,28 @@
+[
+  {
+    "name": "Compra al por mayor",
+    "productsCode": [
+      "TSHIRT"
+    ],
+    "rule": {
+      "code": "MORE THAN",
+      "value": 2
+    },
+    "type": "LESS PRICE EACH ITEM",
+    "value": 1,
+    "priority": 3
+  },
+  {
+    "name": "2 X 1 en voucher",
+    "productsCode": [
+      "VOUCHER"
+    ],
+    "rule": {
+      "code": "QUANTITY X QUANTITY",
+      "value": 2
+    },
+    "type": "PERCENTAGE",
+    "value": 0.5,
+    "priority": 3
+  }
+]

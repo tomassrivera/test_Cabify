@@ -13,9 +13,6 @@ interface ProductDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertProduct(productOrder: ProductOrder)
 
-    @Query("SELECT count(*) FROM products WHERE products.code = :code")
-    suspend fun checkProductExists(code: String): Int
-
     @Query("SELECT products.quantity FROM products WHERE products.code = :code")
     suspend fun getQuantityByProductCode(code: String): Int?
 
