@@ -50,6 +50,7 @@ fun ReviewCartScreen(
     viewModel: CartViewModel = hiltViewModel()
 ) {
     val summaryCart by viewModel.discounts
+    val resetOrderUnit = { viewModel.resetOrder() }
 
     Box(
         modifier = Modifier
@@ -64,7 +65,7 @@ fun ReviewCartScreen(
                     Column {
                         SummaryCart(summaryCart.data!!)
                         Spacer(modifier = Modifier.height(16.dp))
-                        ButtonsArea(viewModel, navController)
+                        ButtonsArea(resetOrderUnit, navController)
                     }
                 }
             }
@@ -167,7 +168,7 @@ fun ShowEmptyCart(modifier: Modifier, navController: NavController) {
 }
 
 @Composable
-fun ButtonsArea(viewModel: CartViewModel, navController: NavController) {
+fun ButtonsArea(resetOrderUnit: () -> Unit, navController: NavController) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Bottom,
@@ -176,7 +177,7 @@ fun ButtonsArea(viewModel: CartViewModel, navController: NavController) {
         OutlinedButton(
             modifier = Modifier.weight(1f),
             onClick = {
-                viewModel.resetOrder()
+                resetOrderUnit.invoke()
                 navController.popBackStack(
                     CabifyMarketplaceScreens.Products.name,
                     inclusive = false

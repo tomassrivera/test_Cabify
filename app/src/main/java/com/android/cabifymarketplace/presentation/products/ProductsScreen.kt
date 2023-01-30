@@ -37,6 +37,7 @@ import com.android.cabifymarketplace.R
 import com.android.cabifymarketplace.core.Resource
 import com.android.cabifymarketplace.domain.model.Product
 import com.android.cabifymarketplace.domain.model.Products
+import com.android.cabifymarketplace.domain.model.db.ProductOrder
 import com.android.cabifymarketplace.presentation.ShowError
 import com.android.cabifymarketplace.presentation.ShowLoading
 import com.android.cabifymarketplace.presentation.ui.theme.CabifyMarketplaceTheme
@@ -52,6 +53,7 @@ fun ProductsScreen(
     onUpdateCartClicked: (Int, Product) -> Unit
 ) {
     val productList by viewModel.productList
+    val cartProducts by viewModel.order.observeAsState()
 
     Box(
         modifier = Modifier
@@ -61,7 +63,7 @@ fun ProductsScreen(
         when (productList) {
             is Resource.Success<Products> -> {
                 productList.data?.products?.let { productList ->
-                    ProductList(productList, onUpdateCartClicked, viewModel)
+                    ProductList(productList, onUpdateCartClicked, cartProducts)
                 }
                 Box(modifier = Modifier.fillMaxSize()) {
                     FloatingActionButton(
@@ -96,7 +98,7 @@ fun ProductsScreen(
 private fun ProductList(
     productList: List<Product>,
     onUpdateCartClicked: (Int, Product) -> Unit,
-    viewModel: ProductViewModel
+    cartProducts: List<ProductOrder>?
 ) {
     LazyColumn {
         items(items = productList) { item ->
@@ -105,7 +107,7 @@ private fun ProductList(
                 modifier = Modifier.padding(vertical = 8.dp),
                 shape = RoundedCornerShape(10.dp)
             ) {
-                CardContent(item, onUpdateCartClicked, viewModel)
+                CardContent(item, onUpdateCartClicked, cartProducts)
             }
         }
     }
@@ -115,7 +117,7 @@ private fun ProductList(
 private fun CardContent(
     product: Product,
     onUpdateCartClicked: (Int, Product) -> Unit,
-    viewModel: ProductViewModel
+    cartProducts: List<ProductOrder>?
 ) {
     Column(modifier = Modifier.padding(vertical = 2.dp, horizontal = 8.dp)) {
         Row(
@@ -141,7 +143,7 @@ private fun CardContent(
                 )
             }
         }
-        ButtonsCardContent(product, onUpdateCartClicked, viewModel)
+        ButtonsCardContent(product, onUpdateCartClicked, cartProducts)
     }
 }
 
@@ -149,9 +151,9 @@ private fun CardContent(
 private fun ButtonsCardContent(
     product: Product,
     onUpdateCartClicked: (Int, Product) -> Unit,
-    viewModel: ProductViewModel
+    cartProducts: List<ProductOrder>?
 ) {
-    val cartProducts by viewModel.order.observeAsState()
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
